@@ -154,7 +154,7 @@
     function doRun() {
       var btn = $(".run", root);
       if (btn) btn.disabled = true;
-      return window.Runner.run(ta.value, out, { stdin: stdinOf(root) }).then(function (r) {
+      return window.Runner.run(ta.value, out, { stdin: stdinOf(root), interactive: true, onWaiting: function (w) { if (btn) btn.disabled = w ? false : true; } }).then(function (r) {
         if (btn) btn.disabled = false;
         if (r.ok && root.classList.contains("try")) award("try" + indexOf(root), 2);
         return r;

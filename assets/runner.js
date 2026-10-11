@@ -60,7 +60,7 @@
     [/ValueError/, "The value has the right type but the wrong content, like int('two')."],
     [/IndexError/, "That position is past the end of the list. Remember the first item is position 0."],
     [/AttributeError/, "This object does not have that name. Check the spelling after the dot."],
-    [/EOFError/, "input() needs an answer. Type it in the 'Your answers' box under the code."]
+    [/EOFError/, "input() needs an answer. Press Run and type your answer in the box that appears."]
   ];
 
   function friendly(err) {
@@ -69,7 +69,8 @@
     return last ? null : null;
   }
 
-  function exec(code, stdin, onStatus) {
+  function exec(code, stdin, onStatus, opts) {
+    opts = opts || {};
     if (location.protocol === "file:" && String(window.PYODIDE_URL).indexOf("file:") === 0) {
       return Promise.resolve({ ok: false, out: "", images: [], offline: true, err: "This offline copy needs a small local server. In the site folder run: python3 -m http.server  then open http://localhost:8000" });
     }
@@ -77,7 +78,7 @@
       if (!ok) return { ok: false, out: "", images: [], err: "Python could not load. Check your internet connection (it is needed the first time), then try again.", offline: true };
       var timer = null, finished = false;
       return new Promise(function (resolve) {
-        post({ type: "run", code: code, stdin: stdin || [] }, function (text) {
+        post({ type: "run", code: code, stdin: stdin || [], interactive: !!opts.interactive, seed: opts.seed || 0 }, function (text) {
           if (text === "exec-start") {
             if (onStatus) onStatus("");
             timer = setTimeout(function () {
@@ -116,15 +117,45 @@
     return lines.join("\n");
   }
 
-  // Run code and show the result in an element.
-  function run(code, outEl, opts) {
-    opts = opts || {};
+  function render(outEl, r) {
     outEl.innerHTML = "";
-    outEl.classList.add("has-out");
-    var status = document.createElement("span");
-    status.className = "status";
-    outEl.appendChild(status);
-    return exec(code, opts.stdin, function (t) { status.textContent = t; }).then(function (r) {
+    if (r.out) {
+      var o = document.createElement("span");
+      o.className = "stdout";
+      o.textContent = clip(r.out);
+      outEl.appendChild(o);
+    }
+    (r.images || []).forEach(function (b64) {
+      var img = document.createElement("img");
+      img.className = "plot";
+      img.alt = "Chart produced by your code";
+      img.src = "data:image/png;base64," + b64;
+      outEl.appendChild(img);
+    });
+    if (r.err) {
+      var e = document.createElement("span");
+      e.className = "stderr";
+      e.textContent = (r.out ? "\n" : "") + r.err;
+      outEl.appendChild(e);
+      var tip = friendly(r.err);
+      if (tip) {
+        var t = document.createElement("div");
+        t.className = "tip";
+        t.textContent = "💡 Tip: " + tip;
+        outEl.appendChild(t);
+      }
+    }
+    if (!r.out && !r.err && !(r.images || []).length) {
+      var n = document.createElement("span");
+      n.className = "muted";
+      n.textContent = "(no output — add a print() to see something)";
+      outEl.appendChild(n);
+    }
+  }
+
+  // Show what the program printed so far, then a box for the answer to input().
+  function ask(outEl, r, suggestion, onWaiting) {
+    return new Promise(function (resolve) {
       outEl.innerHTML = "";
       if (r.out) {
         var o = document.createElement("span");
@@ -132,34 +163,63 @@
         o.textContent = clip(r.out);
         outEl.appendChild(o);
       }
-      (r.images || []).forEach(function (b64) {
-        var img = document.createElement("img");
-        img.className = "plot";
-        img.alt = "Chart produced by your code";
-        img.src = "data:image/png;base64," + b64;
-        outEl.appendChild(img);
-      });
-      if (r.err) {
-        var e = document.createElement("span");
-        e.className = "stderr";
-        e.textContent = (r.out ? "\n" : "") + r.err;
-        outEl.appendChild(e);
-        var tip = friendly(r.err);
-        if (tip) {
-          var t = document.createElement("div");
-          t.className = "tip";
-          t.textContent = "💡 Tip: " + tip;
-          outEl.appendChild(t);
-        }
-      }
-      if (!r.out && !r.err && !(r.images || []).length) {
-        var n = document.createElement("span");
-        n.className = "muted";
-        n.textContent = "(no output — add a print() to see something)";
-        outEl.appendChild(n);
-      }
-      return r;
+      var row = document.createElement("label");
+      row.className = "ask";
+      var q = document.createElement("span");
+      q.className = "ask-prompt";
+      q.textContent = r.prompt;
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.className = "ask-input";
+      inp.autocomplete = "off";
+      inp.spellcheck = false;
+      inp.setAttribute("aria-label", r.prompt || "Your answer");
+      if (suggestion) inp.placeholder = suggestion + "  (Enter to use)";
+      var go = document.createElement("button");
+      go.type = "button";
+      go.className = "btn ask-go";
+      go.textContent = "Enter";
+      row.appendChild(q); row.appendChild(inp); row.appendChild(go);
+      outEl.appendChild(row);
+      function submit() { resolve(inp.value !== "" ? inp.value : (suggestion || "")); }
+      go.addEventListener("click", submit);
+      inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); submit(); } });
+      try { inp.focus({ preventScroll: true }); } catch (e) { inp.focus(); }
+      if (onWaiting) onWaiting(true);
     });
+  }
+  // Run code and show the result in an element.
+  // opts.interactive: each input() asks the student in a box under the output (opts.stdin gives suggested answers).
+  function run(code, outEl, opts) {
+    opts = opts || {};
+    outEl.classList.add("has-out");
+    var token = (outEl._runToken = (outEl._runToken || 0) + 1);
+    function status(t) {
+      outEl.innerHTML = "";
+      var st = document.createElement("span");
+      st.className = "status";
+      st.textContent = t;
+      outEl.appendChild(st);
+    }
+    status("");
+    if (!opts.interactive) {
+      return exec(code, opts.stdin, function (t) { status(t); }).then(function (r) { render(outEl, r); return r; });
+    }
+    var typed = [], seed = Math.floor(Math.random() * 1e9) + 1;
+    function round() {
+      return exec(code, typed, function (t) { if (outEl._runToken === token) status(t); }, { interactive: true, seed: seed }).then(function (r) {
+        if (outEl._runToken !== token) return r;  // a newer run took over this box
+        if (!r.needInput) { render(outEl, r); return r; }
+        return ask(outEl, r, (opts.stdin || [])[typed.length], opts.onWaiting).then(function (answer) {
+          if (outEl._runToken !== token) return r;
+          typed.push(answer);
+          if (opts.onWaiting) opts.onWaiting(false);
+          status("");
+          return round();
+        });
+      });
+    }
+    return round();
   }
 
   window.Runner = { run: run, exec: exec, trace: trace, friendly: friendly };

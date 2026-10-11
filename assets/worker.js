@@ -63,7 +63,9 @@ async function handle(m) {
         await pyodide.loadPackagesFromImports(m.code);
         if (imported.indexOf("matplotlib") !== -1) pyodide.runPython("import matplotlib\nmatplotlib.use('AGG')");
         pyodide.globals.set("_answers", pyodide.toPy(m.stdin || []));
-        pyodide.runPython("import builtins\nbuiltins.input = _make_input(list(_answers))");
+        pyodide.globals.set("_interactive", !!m.interactive);
+        if (m.interactive) pyodide.runPython("import random\nrandom.seed(%d)".replace("%d", String(m.seed | 0)));
+        pyodide.runPython("import builtins\nbuiltins.input = _make_input(list(_answers), _interactive)");
         postMessage({ id: m.id, type: "status", text: "exec-start" });
         const g = pyodide.globals.get("dict")();
         g.set("__name__", "__main__");
@@ -77,6 +79,13 @@ async function handle(m) {
         figs.destroy();
       } catch (ex) {
         fail = cleanTraceback(ex.message || ex);
+      }
+      if (m.interactive) {
+        const need = pyodide.globals.get("_need_prompt");
+        if (need !== undefined && need !== null) {
+          postMessage({ id: m.id, type: "result", ok: true, needInput: true, prompt: String(need), out: out, err: "", images: [] });
+          return;
+        }
       }
       postMessage({ id: m.id, type: "result", ok: fail === null, out: out, err: (fail || "") + (err && fail === null ? err : ""), images: images });
       return;

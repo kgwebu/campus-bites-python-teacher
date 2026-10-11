@@ -218,3 +218,9 @@ body[data-os="mac"] .os-win, body[data-os="win"] .os-mac { display: none; }
 .rl-help { color: var(--muted); font-size: .9rem; }
 .sidebar a.locked { opacity: .6; }
 .sidebar a.locked .tick::before { content: "🔒"; font-size: .7em; }
+
+/* input() prompt shown inside the output box */
+.ask { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; font-family: var(--mono); }
+.ask-prompt { white-space: pre-wrap; }
+.ask-input { font: inherit; padding: 4px 8px; border: 2px solid var(--accent); border-radius: 8px; background: var(--panel); color: var(--ink); min-width: 10em; }
+.ask-go { padding: 4px 12px; }
