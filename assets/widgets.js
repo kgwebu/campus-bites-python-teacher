@@ -499,7 +499,7 @@
   // ---------- Slider ----------
   $$(".w-slider").forEach(function (root) {
     var input = $("input[type=range]", root), val = $(".slider-val", root), out = $(".out", root);
-    var name = root.getAttribute("data-var"), code = root.getAttribute("data-code");
+    var name = root.getAttribute("data-slider-var"), code = root.getAttribute("data-code");
     var busy = false, dirty = false, started = false, timer = null;
     function go() {
       if (busy) { dirty = true; return; }

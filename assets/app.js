@@ -57,6 +57,50 @@
     });
   })();
 
+  // ----- personal variants: numbers worked out from the GitHub username (must match tools/variants.py) -----
+  (function () {
+    var card = $(".variant-card");
+    var spans = $$("span[data-var]");
+    if (!card && !spans.length) return;
+    var aid = card ? card.getAttribute("data-aid") : null;
+    var input = card ? $(".variant-user", card) : null;
+    var opts = ((window.VARIANTS || {})[aid]) || {};
+    function pick(username) {
+      var hex = window.Seal.sha256Hex(aid + "|" + username.trim().toLowerCase());
+      var out = {}, i = 0;
+      Object.keys(opts).forEach(function (name) {
+        var b = parseInt(hex.substr(i * 2, 2), 16);
+        out[name] = opts[name][b % opts[name].length]; i++;
+      });
+      return out;
+    }
+    function show() {
+      var u = input ? input.value : "";
+      var vals = u.trim() ? pick(u) : null;
+      spans.forEach(function (sp) {
+        var v = vals ? vals[sp.getAttribute("data-var")] : undefined;
+        sp.textContent = v === undefined ? "(your number)" : String(v);
+        sp.classList.toggle("var-missing", v === undefined);
+      });
+      var out = $(".variant-out", card);
+      if (!out) return;
+      if (!vals) { out.textContent = ""; return; }
+      out.innerHTML = "";
+      var table = document.createElement("table");
+      Object.keys(vals).forEach(function (name) {
+        var tr = document.createElement("tr"), a = document.createElement("td"), b = document.createElement("td");
+        a.textContent = name.replace(/_/g, " "); b.textContent = String(vals[name]);
+        tr.appendChild(a); tr.appendChild(b); table.appendChild(tr);
+      });
+      out.appendChild(table);
+    }
+    if (input) {
+      try { input.value = localStorage.getItem("cb-username") || ""; } catch (e) {}
+      input.addEventListener("input", function () { try { localStorage.setItem("cb-username", input.value); } catch (e) {} show(); });
+    }
+    show();
+  })();
+
   // ----- progress API -----
   var Progress = {
     award: function (key, xp) { if (state.awards[key]) return; state.awards[key] = true; state.xp += xp; save(); refresh(); },

@@ -1,0 +1,189 @@
+"""Works out YOUR personal numbers for an assignment from your GitHub username."""
+import hashlib
+
+OPTIONS = {
+ "a1": {
+  "coffee_price": [
+   "3.50",
+   "4.50",
+   "5.50"
+  ],
+  "muffin_price": [
+   "2.00",
+   "2.50",
+   "4.00"
+  ],
+  "disc1_over": [
+   "28",
+   "30",
+   "32",
+   "34"
+  ],
+  "disc1_rate": [
+   "4",
+   "8",
+   "12"
+  ],
+  "disc2_over": [
+   "38",
+   "42",
+   "46",
+   "50"
+  ],
+  "disc2_rate": [
+   "16",
+   "20",
+   "24"
+  ],
+  "compare": [
+   "over",
+   "at least"
+  ],
+  "delivery_fee": [
+   "2.50",
+   "3.00",
+   "3.50",
+   "4.00"
+  ],
+  "free_from": [
+   "20",
+   "22",
+   "24",
+   "26"
+  ],
+  "loyalty_every": [
+   "3",
+   "4",
+   "5"
+  ],
+  "loyalty_off": [
+   "1.50",
+   "2.00",
+   "2.50",
+   "3.00"
+  ]
+ },
+ "a2": {
+  "drink_1": [
+   "Coffee",
+   "Latte",
+   "Mocha"
+  ],
+  "drink_1_price": [
+   "4.50",
+   "4.75",
+   "5.00"
+  ],
+  "drink_2": [
+   "Tea",
+   "Chai",
+   "Cocoa"
+  ],
+  "drink_2_price": [
+   "3.00",
+   "3.25",
+   "3.50"
+  ],
+  "bake_1": [
+   "Muffin",
+   "Scone",
+   "Brownie"
+  ],
+  "bake_1_price": [
+   "3.25",
+   "3.50",
+   "3.75"
+  ],
+  "bake_2": [
+   "Cookie",
+   "Bagel",
+   "Croissant"
+  ],
+  "bake_2_price": [
+   "2.50",
+   "2.75",
+   "3.00"
+  ],
+  "meal": [
+   "Sandwich",
+   "Wrap",
+   "Salad"
+  ],
+  "meal_price": [
+   "6.50",
+   "7.00",
+   "7.50"
+  ],
+  "bulk_at": [
+   "10",
+   "12",
+   "13",
+   "16"
+  ],
+  "bulk_pct": [
+   "5",
+   "8",
+   "10",
+   "12"
+  ],
+  "member_pct": [
+   "4",
+   "6",
+   "9"
+  ],
+  "discount_rule": [
+   "add",
+   "larger"
+  ],
+  "rounding_rule": [
+   "nearest",
+   "down",
+   "up5"
+  ]
+ },
+ "a3": {
+  "max_qty": [
+   2,
+   3,
+   4,
+   5
+  ],
+  "name_rule": [
+   "exact",
+   "tidy"
+  ],
+  "cookie_rule": [
+   "bad",
+   "Muffin",
+   "Tea",
+   "Coffee"
+  ],
+  "best_metric": [
+   "revenue",
+   "profit"
+  ],
+  "min_revenue": [
+   "150.00",
+   "250.00",
+   "350.00",
+   "500.00"
+  ],
+  "start_date": [
+   "2026-03-01",
+   "2026-03-03",
+   "2026-03-06",
+   "2026-03-09"
+  ],
+  "end_date": [
+   "2026-03-20",
+   "2026-03-24",
+   "2026-03-27",
+   "2026-03-30"
+  ]
+ }
+}
+
+
+def pick(aid, username):
+    digest = hashlib.sha256(f"{aid}|{username.strip().lower()}".encode("utf-8")).digest()
+    return {name: opts[digest[i] % len(opts)] for i, (name, opts) in enumerate(OPTIONS[aid].items())}
