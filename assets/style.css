@@ -172,7 +172,7 @@ pre.out.big { font-size: 1.6rem; font-weight: 800; color: var(--green); min-heig
 .unlock[hidden] { display: none; }
 .unlock input { padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); font: inherit; }
 .unlock-msg { color: var(--muted); font-size: .9rem; }
-.copy-progress { display: block; width: calc(100% - 24px); margin: 8px 12px 0; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; font: inherit; }
+.copy-progress, .download-code { display: block; width: calc(100% - 24px); margin: 8px 12px 0; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); cursor: pointer; font: inherit; }
 .progress-modal .modal-card { max-width: 520px; width: 92%; text-align: left; }
 .progress-modal textarea { width: 100%; box-sizing: border-box; font-family: ui-monospace, monospace; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px; margin: 8px 0; }
 .progress-modal input { padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); font: inherit; }

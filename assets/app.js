@@ -129,7 +129,36 @@
     mt.setAttribute("aria-expanded", open ? "true" : "false");
   });
   var rp = $(".reset-progress");
-  if (rp) rp.addEventListener("click", function () { if (window.confirm("Reset all your progress and XP?")) Progress.reset(); });
+  if (rp) rp.addEventListener("click", function () {
+    if (!window.confirm("Reset all your progress, XP and saved code? This cannot be undone.")) return;
+    Progress.reset();
+    try {
+      Object.keys(localStorage).filter(function (k) { return k.indexOf("cb-code:") === 0; }).forEach(function (k) { localStorage.removeItem(k); });
+    } catch (e) {}
+    location.reload();
+  });
+
+  // ----- download everything the student has typed (this browser) -----
+  var dall = $(".download-code");
+  if (dall) dall.addEventListener("click", function () {
+    var labels = index.labels || {}, items = [];
+    try {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf("cb-code:") !== 0) return;
+        var m = /^cb-code:(.*)#(\d+)$/.exec(k); if (!m) return;
+        var rec = JSON.parse(localStorage.getItem(k));
+        if (rec && typeof rec.c === "string") items.push({ pid: m[1], n: parseInt(m[2], 10), code: rec.c });
+      });
+    } catch (e) {}
+    if (!items.length) { window.alert("Nothing saved yet. Type in any code box and your code is saved here."); return; }
+    items.sort(function (a, b) { return a.pid < b.pid ? -1 : a.pid > b.pid ? 1 : a.n - b.n; });
+    var out = ["# Campus Bites Python: my saved code", "# Saved " + new Date().toISOString().slice(0, 10), ""];
+    items.forEach(function (it) {
+      out.push("# " + (labels[it.pid] ? labels[it.pid] + "  " : "") + it.pid + " (code box " + (it.n + 1) + ")");
+      out.push(it.code.replace(/\s+$/, ""), "", "");
+    });
+    window.CodeStore.download("my-campus-bites-code.txt", out.join("\n"));
+  });
 
   // ----- present mode and answers toggle (teacher site) -----
   var pt = $(".present-toggle");

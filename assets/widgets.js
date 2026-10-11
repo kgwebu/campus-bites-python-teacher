@@ -87,15 +87,55 @@
     return box && box.value.trim() ? box.value.split("\n") : [];
   }
 
+  // ---------- saved code: every editor remembers what the student typed (this browser only) ----------
+  var CODE_PREFIX = "cb-code:";
+  function pageId() { return document.body.getAttribute("data-pid") || location.pathname; }
+  function editorIndex(ta) { return $$("textarea.code").indexOf(ta); }
+  function codeKey(ta) { return CODE_PREFIX + pageId() + "#" + editorIndex(ta); }
+  function exampleName(root, ta) {
+    var kind = root.classList.contains("turn") ? "turn" : root.classList.contains("w-break") ? "break" : "try";
+    var slug = pageId().split("/").pop();
+    return slug + "-" + kind + (editorIndex(ta) + 1) + ".py";
+  }
+  function downloadText(name, text) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  window.CodeStore = { PREFIX: CODE_PREFIX, download: downloadText };
+
   // ---------- editors: Try it Yourself, Your turn, Break it ----------
   function wireEditor(root) {
     var ta = $("textarea.code", root);
     if (!ta) return;
+    var stdinTa = $(".stdin textarea", root);
+    var original = ta.getAttribute("data-original") || "";
+    var key = codeKey(ta), saveTimer = null;
+    function saveNow() {
+      var changed = ta.value !== original;
+      if (!changed) { try { localStorage.removeItem(key); } catch (e) {} return; }
+      storeSet(key, JSON.stringify({ c: ta.value, s: stdinTa ? stdinTa.value : "", o: original, t: Date.now() }));
+    }
+    function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 350); }
+    (function restore() {
+      var raw = storeGet(key);
+      if (!raw) return;
+      try {
+        var rec = JSON.parse(raw);
+        if (rec && rec.o === original && typeof rec.c === "string") {
+          ta.value = rec.c;
+          if (stdinTa && typeof rec.s === "string") stdinTa.value = rec.s;
+        } else localStorage.removeItem(key);   // the lesson changed since it was saved
+      } catch (e) { try { localStorage.removeItem(key); } catch (x) {} }
+    })();
     var out = $(".out", root);
     var stdinBox = $(".stdin", root);
     function syncStdin() { if (stdinBox) stdinBox.hidden = ta.value.indexOf("input(") === -1; }
     function grow() { ta.rows = Math.max(3, Math.min(18, ta.value.split("\n").length + 1)); }
-    ta.addEventListener("input", function () { syncStdin(); grow(); });
+    ta.addEventListener("input", function () { syncStdin(); grow(); saveSoon(); });
+    if (stdinTa) stdinTa.addEventListener("input", saveSoon);
+    window.addEventListener("pagehide", saveNow);
     var trapTab = true;
     ta.addEventListener("focus", function () { trapTab = true; });
     ta.addEventListener("keydown", function (e) {
@@ -124,7 +164,8 @@
     var reset = $(".reset", root);
     if (reset) reset.addEventListener("click", function () {
       ta.value = ta.getAttribute("data-original") || "";
-      out.innerHTML = ""; grow(); syncStdin();
+      if (stdinTa) stdinTa.value = stdinTa.defaultValue;
+      out.innerHTML = ""; grow(); syncStdin(); saveNow();
     });
     var copy = $(".copy", root);
     if (copy) copy.addEventListener("click", function () {
@@ -132,6 +173,14 @@
       catch (e) { ta.select(); copy.textContent = "Press Ctrl+C"; }
       setTimeout(function () { copy.textContent = "Copy"; }, 1500);
     });
+    var btns = $(".try-btns", root) || $(".turn-btns", root);
+    if (btns) {
+      var dl = document.createElement("button");
+      dl.type = "button"; dl.className = "btn ghost save-code"; dl.textContent = "⬇ Save";
+      dl.title = "Download this code as a .py file";
+      dl.addEventListener("click", function () { downloadText(exampleName(root, ta), ta.value.replace(/\s+$/, "") + "\n"); });
+      btns.appendChild(dl);
+    }
     syncStdin(); grow();
     root._run = doRun;
   }
