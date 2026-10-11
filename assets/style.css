@@ -205,3 +205,16 @@ body[data-os="mac"] .os-win, body[data-os="win"] .os-mac { display: none; }
 .content table { border-collapse: collapse; margin: 12px 0; width: 100%; } .content th, .content td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
 
 .script p { margin: .6em 0; } .script p em { color: var(--muted); }
+
+/* release lock (student edition) */
+.release-lock { max-width: 520px; margin: 40px auto; padding: 28px 24px; text-align: center; background: var(--panel); border: 2px dashed var(--line); border-radius: 16px; }
+.release-lock[hidden] { display: none; }
+.rl-emoji { font-size: 2.4rem; }
+.rl-what { color: var(--muted); }
+.rl-form { display: flex; gap: 8px; justify-content: center; margin: 16px 0 6px; flex-wrap: wrap; }
+.rl-input { font: inherit; font-size: 1.1rem; letter-spacing: .12em; text-transform: uppercase; padding: 10px 12px; border: 2px solid var(--line); border-radius: 10px; width: 14em; max-width: 100%; background: var(--bg); color: var(--ink); text-align: center; }
+.rl-msg { min-height: 1.4em; margin: 4px 0; font-weight: 600; }
+.rl-msg.bad { color: var(--red); }
+.rl-help { color: var(--muted); font-size: .9rem; }
+.sidebar a.locked { opacity: .6; }
+.sidebar a.locked .tick::before { content: "🔒"; font-size: .7em; }

@@ -287,6 +287,7 @@
   $$(".w-guess").forEach(function (root, i) {
     var inp = $("input", root), out = $(".out", root), fb = $(".fb", root);
     $(".check", root).addEventListener("click", function () {
+      if (!inp.value.trim()) { feedback(fb, false, "Type your guess first. Then Python will show what really happens."); return; }
       var hashes = root.getAttribute("data-hashes");
       var ok;
       if (hashes) {

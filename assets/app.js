@@ -48,6 +48,15 @@
   }
   if (modal) { $(".modal-close", modal).addEventListener("click", closeModal); }
 
+  // ----- release locks: mark menu links the teacher has not opened yet -----
+  (function () {
+    var have = 0;
+    try { var st = JSON.parse(localStorage.getItem("cb-release")); if (st && st.i > 0) have = st.i; } catch (e) {}
+    $$(".sidebar a[data-rp]").forEach(function (a) {
+      if (parseInt(a.getAttribute("data-rp"), 10) > have) { a.classList.add("locked"); a.title = "Not released yet"; }
+    });
+  })();
+
   // ----- progress API -----
   var Progress = {
     award: function (key, xp) { if (state.awards[key]) return; state.awards[key] = true; state.xp += xp; save(); refresh(); },
