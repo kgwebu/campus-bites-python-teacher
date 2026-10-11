@@ -118,17 +118,21 @@
       storeSet(key, JSON.stringify({ c: ta.value, s: stdinTa ? stdinTa.value : "", o: original, t: Date.now() }));
     }
     function saveSoon() { clearTimeout(saveTimer); saveTimer = setTimeout(saveNow, 350); }
-    (function restore() {
+    var restored = (function restore() {
       var raw = storeGet(key);
-      if (!raw) return;
+      if (!raw) return false;
       try {
         var rec = JSON.parse(raw);
         if (rec && rec.o === original && typeof rec.c === "string") {
           ta.value = rec.c;
           if (stdinTa && typeof rec.s === "string") stdinTa.value = rec.s;
+          return true;
         } else localStorage.removeItem(key);   // the lesson changed since it was saved
       } catch (e) { try { localStorage.removeItem(key); } catch (x) {} }
+      return false;
     })();
+    // project steps start from the student's own code from the step before
+    if (!restored && root._carry) { var carried = root._carry(); if (carried) ta.value = carried; }
     var out = $(".out", root);
     var stdinBox = $(".stdin", root);
     function syncStdin() { if (stdinBox && !stdinBox.classList.contains("quiet")) stdinBox.hidden = ta.value.indexOf("input(") === -1; }
@@ -163,7 +167,7 @@
     var run = $(".run", root); if (run) run.addEventListener("click", doRun);
     var reset = $(".reset", root);
     if (reset) reset.addEventListener("click", function () {
-      ta.value = ta.getAttribute("data-original") || "";
+      ta.value = (root._carry && root._carry()) || ta.getAttribute("data-original") || "";
       if (stdinTa) stdinTa.value = stdinTa.defaultValue;
       out.innerHTML = ""; grow(); syncStdin(); saveNow();
     });
@@ -189,12 +193,41 @@
   $$(".try, .w-break").forEach(wireEditor);
 
   // ---------- Your turn ----------
+  // ---------- Project steps (student edition): one step at a time, the student's code carried forward ----------
+  function stepRec(k) { try { return JSON.parse(storeGet("cb-step:" + pageId() + "#" + k)); } catch (e) { return null; } }
+  function stepSave(k, code) { storeSet("cb-step:" + pageId() + "#" + k, JSON.stringify({ c: code })); }
+  function carryFor(k) {
+    var r = k > 1 ? stepRec(k - 1) : null;
+    return r && typeof r.c === "string" ? r.c.replace(/\s+$/, "") + "\n\n# --- Step " + k + " ---\n" : "";
+  }
+  function openStep(k, focus) {
+    var t = $('.turn[data-step="' + k + '"]'), lock = $('.step-lock[data-step="' + k + '"]');
+    if (!t) return;
+    t.hidden = false;
+    if (lock) lock.hidden = true;
+    if (t._applyCarry) t._applyCarry();
+    if (focus) { try { t.scrollIntoView({ behavior: "smooth", block: "start" }); } catch (e) { t.scrollIntoView(); } }
+  }
+
   $$(".turn").forEach(function (root) {
+    var step = parseInt(root.getAttribute("data-step") || "0", 10), steps = parseInt(root.getAttribute("data-steps") || "0", 10);
+    if (step > 1) root._carry = function () { return carryFor(step); };
     wireEditor(root);
+    if (step > 1) {
+      root._applyCarry = function () {
+        var ta0 = $("textarea.code", root);
+        if (!storeGet(codeKey(ta0))) { var c = carryFor(step); if (c) { ta0.value = c; ta0.dispatchEvent(new Event("input")); } }
+      };
+    }
+    var gateHints = root.getAttribute("data-gate-hints") === "1";
     var answer = root.getAttribute("data-answer") || "";
     var fb = $(".fb", root), out = $(".out", root), ta = $("textarea.code", root);
     var hints = $$(".hint-step", root), shown = 0, hintBtn = $(".hint", root);
     if (hintBtn) hintBtn.addEventListener("click", function () {
+      if (gateHints && fails < shown + 1) {
+        feedback(fb, false, shown ? "Press Check again first. Another hint opens after another try." : "Give it a try and press Check first. Your first hint opens after one try.");
+        return;
+      }
       if (shown < hints.length) { hints[shown].hidden = false; shown++; }
       hintBtn.textContent = shown < hints.length ? "💡 Another hint (" + shown + "/" + hints.length + ")" : "💡 No more hints";
       if (shown >= hints.length) hintBtn.disabled = true;
@@ -206,6 +239,7 @@
       if (!pre) { pre = document.createElement("pre"); pre.className = "answer"; root.insertBefore(pre, $(".fb", root)); }
       pre.textContent = text; pre.hidden = false;
       var box = $(".unlock", root); if (box) box.hidden = true;
+      if (step) { if (!stepRec(step)) stepSave(step, text); if (step < steps) openStep(step + 1, false); }
     }
     function cls() { return parseInt(document.body.getAttribute("data-class"), 10); }
     function tryUnlock(code, silent) {
@@ -250,7 +284,8 @@
           if (norm(mine.out) === norm(expectText)) {
             feedback(fb, true, "🎉 Yes! Your output matches. Nice work.");
             award("turn" + indexOf(root), 10); celebrate(true);
-            if (window.Progress) window.Progress.markDone(pid());
+            if (step) { stepSave(step, ta.value); if (step < steps) openStep(step + 1, true); }
+            if (window.Progress && (!step || step === steps)) window.Progress.markDone(pid());
           } else {
             fails++;
             feedback(fb, false, fails >= 2 ? "Not quite yet. The output should look like this (the output, not the code):\n" + expectText.trim()
@@ -281,6 +316,11 @@
         }
       });
     });
+  });
+
+  $$(".turn[data-step]").forEach(function (t) {
+    var k = parseInt(t.getAttribute("data-step"), 10);
+    if (k > 1 && stepRec(k - 1)) openStep(k, false);
   });
 
   // ---------- Guess first ----------

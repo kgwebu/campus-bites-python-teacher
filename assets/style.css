@@ -224,3 +224,10 @@ body[data-os="mac"] .os-win, body[data-os="win"] .os-mac { display: none; }
 .ask-prompt { white-space: pre-wrap; }
 .ask-input { font: inherit; padding: 4px 8px; border: 2px solid var(--accent); border-radius: 8px; background: var(--panel); color: var(--ink); min-width: 10em; }
 .ask-go { padding: 4px 12px; }
+
+/* class project steps (student edition) */
+.target { background: var(--panel); border: 2px solid var(--line); border-left: 6px solid var(--accent); border-radius: 12px; padding: 12px 16px; margin: 16px 0; }
+.target h2 { margin: 0 0 8px; font-size: 1.05rem; }
+.target-out { background: var(--code-bg); color: var(--code-ink); padding: 12px 14px; border-radius: 8px; overflow-x: auto; margin: 0 0 8px; }
+.step-lock { border: 2px dashed var(--line); border-radius: 12px; padding: 12px 16px; margin: 14px 0; color: var(--muted); text-align: center; }
+.step-lock[hidden], .turn[hidden] { display: none; }
