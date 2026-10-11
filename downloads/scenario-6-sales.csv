@@ -1,0 +1,121 @@
+date,item,quantity,quantity_made
+2026-04-01,Pumpkin latte,17,31
+2026-04-01,Apple pie slice,18,34
+2026-04-01,Cider,27,38
+2026-04-01,Pretzel,18,20
+2026-04-02,Pumpkin latte,35,36
+2026-04-02,Apple pie slice,25,29
+2026-04-02,Cider,22,38
+2026-04-02,Pretzel,14,20
+2026-04-03,Pumpkin latte,16,28
+2026-04-03,Apple pie slice,26,29
+2026-04-03,Cider,11,20
+2026-04-03,Pretzel,29,29
+2026-04-04,Pumpkin latte,19,32
+2026-04-04,Apple pie slice,42,42
+2026-04-04,Cider,32,44
+2026-04-04,Pretzel,29,41
+2026-04-05,Pumpkin latte,26,33
+2026-04-05,Apple pie slice,n/a,43
+2026-04-05,Cider,41,48
+2026-04-05,Pretzel,44,44
+2026-04-06,Pumpkin latte,23,28
+2026-04-06,Apple pie slice,27,36
+2026-04-06,Cider,22,23
+2026-04-06,Pretzel,22,38
+2026-04-07,Pumpkin latte,20,32
+2026-04-07,Apple pie slice,17,24
+2026-04-07,Cider,19,22
+2026-04-07,Pretzel,11,20
+2026-04-08,Pumpkin latte,16,21
+2026-04-08,Apple pie slice,24,30
+2026-04-08,Cider,16,24
+2026-04-08,Pretzel,15,21
+2026-04-09,Pumpkin latte,16,21
+2026-04-09,Apple pie slice,32,34
+2026-04-09,Cider,,30
+2026-04-09,Pretzel,26,27
+2026-04-10,Pumpkin latte,25,33
+2026-04-10,Apple pie slice,14,20
+2026-04-10,Cider,25,39
+2026-04-10,Pretzel,32,38
+2026-04-11,Pumpkin latte,38,49
+2026-04-11,Apple pie slice,48,50
+2026-04-11,Cider,24,44
+2026-04-11,Pretzel,38,38
+2026-04-12,Pumpkin latte,41,48
+2026-04-12,Apple pie slice,23,34
+2026-04-12,Cider,20,35
+2026-04-12,Pretzel,21,33
+2026-04-13,Pumpkin latte,15,22
+2026-04-13,Apple pie slice,11,20
+2026-04-13,Cider,36,36
+2026-04-13,Gum,26,32
+2026-04-14,Pumpkin latte,15,24
+2026-04-14,Apple pie slice,32,37
+2026-04-14,Cider,16,28
+2026-04-14,Pretzel,34,35
+2026-04-15,Pumpkin latte,16,20
+2026-04-15,Apple pie slice,12,20
+2026-04-15,Cider,18,20
+2026-04-15,Pretzel,20,28
+2026-04-16,Pumpkin latte,21,33
+2026-04-16,Apple pie slice,22,40
+2026-04-16,Cider,18,34
+2026-04-16,Pretzel,38,40
+2026-04-17,Pumpkin latte,18,29
+2026-04-17,Apple pie slice,26,35
+2026-04-17,Cider,16,24
+2026-04-17,Pretzel,21,27
+2026-04-18,Pumpkin latte,two,31
+2026-04-18,Apple pie slice,26,45
+2026-04-18,Cider,24,36
+2026-04-18,Pretzel,22,36
+2026-04-19,Pumpkin latte,27,44
+2026-04-19,Apple pie slice,26,31
+2026-04-19,Cider,30,42
+2026-04-19,Pretzel,27,38
+2026-04-20,Pumpkin latte,21,26
+2026-04-20,Apple pie slice,22,26
+2026-04-20,Cider,18,26
+2026-04-20,Pretzel,21,34
+2026-04-21,Pumpkin latte,27,34
+2026-04-21,Apple pie slice,29,36
+2026-04-21,Cider,19,22
+2026-04-21,Pretzel,27,31
+2026-04-22,Pumpkin latte,37,37
+2026-04-22,Apple pie slice,n/a,35
+2026-04-22,Cider,31,35
+2026-04-22,Pretzel,18,32
+2026-04-23,Pumpkin latte,25,34
+2026-04-23,Apple pie slice,31,36
+2026-04-23,Cider,28,29
+2026-04-23,Pretzel,16,24
+2026-04-24,Pumpkin latte,29,36
+2026-04-24,Apple pie slice,30,34
+2026-04-24,Cider,23,31
+2026-04-24,Pretzel,15,24
+2026-04-25,Pumpkin latte,35,39
+2026-04-25,Apple pie slice,26,46
+2026-04-25,Cider,24,31
+2026-04-25,Pretzel,37,48
+2026-04-26,Pumpkin latte,31,36
+2026-04-26,Apple pie slice,19,33
+2026-04-26,Gum,23,40
+2026-04-26,Pretzel,30,34
+2026-04-27,Pumpkin latte,17,20
+2026-04-27,Apple pie slice,25,40
+2026-04-27,Cider,18,33
+2026-04-27,Pretzel,21,25
+2026-04-28,Pumpkin latte,21,26
+2026-04-28,Apple pie slice,23,32
+2026-04-28,Cider,33,37
+2026-04-28,Pretzel,21,21
+2026-04-29,Pumpkin latte,31,36
+2026-04-29,Apple pie slice,32,32
+2026-04-29,Cider,31,36
+2026-04-29,Pretzel,26,38
+2026-04-30,Pumpkin latte,24,35
+2026-04-30,Apple pie slice,21,37
+2026-04-30,Cider,27,27
+2026-04-30,Pretzel,14,20

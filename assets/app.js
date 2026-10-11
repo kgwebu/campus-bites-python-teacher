@@ -105,7 +105,7 @@
   var search = $(".search");
   if (search) search.addEventListener("input", function () {
     var q = search.value.trim().toLowerCase();
-    $$(".m-chap").forEach(function (d) {
+    $$(".m-chap, .m-sec").forEach(function (d) {
       var any = false;
       $$("li", d).forEach(function (li) {
         var show = !q || li.textContent.toLowerCase().indexOf(q) !== -1;
@@ -148,6 +148,48 @@
     var show = at.getAttribute("aria-pressed") !== "true";
     at.setAttribute("aria-pressed", show ? "true" : "false");
     $$(".answer").forEach(function (a) { a.hidden = !show; });
+  });
+
+  // ----- guide pages: Mac/Windows switch, ticks, downloadable files -----
+  var osButtons = $$(".os-switch button");
+  function setOS(v) {
+    document.body.setAttribute("data-os", v);
+    osButtons.forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-os") === v ? "true" : "false"); });
+    try { localStorage.setItem("cb-os", v); } catch (e) {}
+  }
+  var savedOS = null;
+  try { savedOS = localStorage.getItem("cb-os"); } catch (e) {}
+  if (savedOS !== "mac" && savedOS !== "win") savedOS = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent) ? "mac" : "win";
+  if (osButtons.length) { setOS(savedOS); osButtons.forEach(function (b) { b.addEventListener("click", function () { setOS(b.getAttribute("data-os")); updateTicks(); }); }); }
+  var ticks = {};
+  try { ticks = JSON.parse(localStorage.getItem("cb-ticks") || "{}") || {}; } catch (e) { ticks = {}; }
+  function visible(el) { return !!(el.offsetParent || el.getClientRects().length); }
+  function updateTicks() {
+    var boxes = $$("input[data-tick]").filter(visible);
+    var sum = $(".tick-summary");
+    if (sum && boxes.length) sum.textContent = boxes.filter(function (b) { return b.checked; }).length + " of " + boxes.length + " steps done";
+  }
+  $$("input[data-tick]").forEach(function (b) {
+    b.checked = !!ticks[b.getAttribute("data-tick")];
+    b.addEventListener("change", function () {
+      if (b.checked) ticks[b.getAttribute("data-tick")] = true; else delete ticks[b.getAttribute("data-tick")];
+      try { localStorage.setItem("cb-ticks", JSON.stringify(ticks)); } catch (e) {}
+      updateTicks();
+    });
+  });
+  updateTicks();
+  $$(".file").forEach(function (f) {
+    var text = function () { return $("code", f).textContent; };
+    $(".dl-file", f).addEventListener("click", function () {
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([text()], { type: "text/plain" })); a.download = f.getAttribute("data-name");
+      document.body.appendChild(a); a.click(); a.remove();
+    });
+    var cb = $(".copy-file", f);
+    cb.addEventListener("click", function () {
+      function done() { cb.textContent = "Copied!"; setTimeout(function () { cb.textContent = "Copy"; }, 1500); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text()).then(done, function () {});
+    });
   });
 
   // ----- copy my progress -----
