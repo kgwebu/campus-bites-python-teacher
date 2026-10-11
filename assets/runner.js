@@ -167,7 +167,8 @@
       row.className = "ask";
       var q = document.createElement("span");
       q.className = "ask-prompt";
-      q.textContent = r.prompt;
+      q.textContent = r.prompt || "Your answer:";
+      if (!r.prompt) q.className += " muted";
       var inp = document.createElement("input");
       inp.type = "text";
       inp.className = "ask-input";
@@ -181,6 +182,10 @@
       go.textContent = "Enter";
       row.appendChild(q); row.appendChild(inp); row.appendChild(go);
       outEl.appendChild(row);
+      var help = document.createElement("div");
+      help.className = "muted ask-help";
+      help.textContent = "The program is waiting. Type your answer in the box, then press Enter.";
+      outEl.appendChild(help);
       function submit() { resolve(inp.value !== "" ? inp.value : (suggestion || "")); }
       go.addEventListener("click", submit);
       inp.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); submit(); } });

@@ -131,7 +131,7 @@
     })();
     var out = $(".out", root);
     var stdinBox = $(".stdin", root);
-    function syncStdin() { if (stdinBox) stdinBox.hidden = ta.value.indexOf("input(") === -1; }
+    function syncStdin() { if (stdinBox && !stdinBox.classList.contains("quiet")) stdinBox.hidden = ta.value.indexOf("input(") === -1; }
     function grow() { ta.rows = Math.max(3, Math.min(18, ta.value.split("\n").length + 1)); }
     ta.addEventListener("input", function () { syncStdin(); grow(); saveSoon(); });
     if (stdinTa) stdinTa.addEventListener("input", saveSoon);
