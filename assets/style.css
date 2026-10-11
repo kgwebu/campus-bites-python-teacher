@@ -203,3 +203,5 @@ body[data-os="mac"] .os-win, body[data-os="win"] .os-mac { display: none; }
 .solution { margin: 16px 0; border: 1px solid var(--line); border-radius: 12px; padding: 6px 12px; } .solution pre { overflow-x: auto; }
 .badge-teacher { background: #b0508f; color: #fff; border-radius: 99px; padding: 1px 10px; font-size: .75rem; margin-left: 6px; }
 .content table { border-collapse: collapse; margin: 12px 0; width: 100%; } .content th, .content td { border: 1px solid var(--line); padding: 6px 10px; text-align: left; vertical-align: top; }
+
+.script p { margin: .6em 0; } .script p em { color: var(--muted); }
